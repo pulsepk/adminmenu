@@ -1,6 +1,9 @@
 QB-ADMINMENU Converted to ESX
 Full credit goes to the original author; I simply converted this to ESX, inspired by the truly remarkable nature of this menu
 
+Youtube Preview:-
+https://youtu.be/bCHUXbpJCgU
+
 Discord:-
 https://discord.gg/fZsZs3YHWF 
 # qb-adminmenu
