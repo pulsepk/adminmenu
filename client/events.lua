@@ -19,10 +19,6 @@ local isSpectating = false
 
 -- Events
 
-RegisterNetEvent('qb-admin:client:inventory', function(targetPed)
-    TriggerServerEvent("inventory:server:OpenInventory", "otherplayer", targetPed)
-end)
-
 RegisterNetEvent('qb-admin:client:spectate', function(targetPed)
     local myPed = PlayerPedId()
     local targetplayer = GetPlayerFromServerId(targetPed)
@@ -64,20 +60,26 @@ end
 
 RegisterNetEvent('qb-adminmenu:adminfix')
 AddEventHandler('qb-adminmenu:adminfix', function()
-	local playerPed = PlayerPedId()
-	local coords = GetEntityCoords(playerPed)
-		local vehicle
-		if IsPedInAnyVehicle(playerPed, false) then
-			vehicle = GetVehiclePedIsIn(playerPed, false)
-		else
-			vehicle = GetClosestVehicle(coords.x, coords.y, coords.z, 5.0, 0, 71)
-		end
-		if DoesEntityExist(vehicle) then
-				SetVehicleFixed(vehicle)
-				SetVehicleDeformationFixed(vehicle)
-				SetVehicleUndriveable(vehicle, false)
-				ESX.ShowNotification("Vehicle Repaired")
-		end
+    ESX.TriggerServerCallback('adminmenu:GetPlayerPermissions', function(isAdmin)
+        if isAdmin then
+            local playerPed = PlayerPedId()
+	        local coords = GetEntityCoords(playerPed)
+	        	local vehicle
+	        if IsPedInAnyVehicle(playerPed, false) then
+	        	vehicle = GetVehiclePedIsIn(playerPed, false)
+	        else
+	        	vehicle = GetClosestVehicle(coords.x, coords.y, coords.z, 5.0, 0, 71)
+	        end
+	        if DoesEntityExist(vehicle) then
+	        	SetVehicleFixed(vehicle)
+	        	SetVehicleDeformationFixed(vehicle)
+	        	SetVehicleUndriveable(vehicle, false)
+	        	ESX.ShowNotification("Vehicle Repaired")
+	        end
+        else
+            ESX.ShowNotification(Lang:t("error.not_admin"), 'error')
+        end
+    end)
 end)
 
 RegisterNetEvent('qb-admin:client:SaveCar')
@@ -199,9 +201,96 @@ function PerformanceUpgradeVehicle(vehicle, customWheels)
     end
 end
 
+function HasPermission(callback)
+    ESX.TriggerServerCallback('adminmenu:GetPlayerPermissions', function(isAdmin)
+        callback(isAdmin)
+    end)
+end
+
 RegisterNetEvent('qb-admin:client:maxmodVehicle', function()
-    local vehicle = GetVehiclePedIsIn(PlayerPedId())
-    PerformanceUpgradeVehicle(vehicle)
-    ESX.ShowNotification("Vehicle Mod Maxed")
+    ESX.TriggerServerCallback('adminmenu:GetPlayerPermissions', function(isAdmin)
+        if isAdmin then
+            local vehicle = GetVehiclePedIsIn(PlayerPedId())
+            PerformanceUpgradeVehicle(vehicle)
+            ESX.ShowNotification("Vehicle Mod Maxed")
+        else
+            ESX.ShowNotification(Lang:t("error.not_admin"), 'error')
+        end
+    end)
 end)
 
+RegisterCommand('admin', function()
+    HasPermission(function(isAdmin)
+        if isAdmin then
+            TriggerEvent('qb-admin:client:openMenu')
+        else
+            ESX.ShowNotification(Lang:t("error.not_admin"), 'error')
+        end
+    end)
+end)
+
+RegisterCommand('fix', function()
+    HasPermission(function(isAdmin)
+    if isAdmin then
+        TriggerEvent('qb-adminmenu:adminfix')
+    else
+        ESX.ShowNotification(Lang:t("error.not_admin"), 'error')
+    end
+end)
+end)
+
+RegisterCommand('dvspawn',function()
+    HasPermission(function(isAdmin)
+    if isAdmin then
+        TriggerServerEvent('adminmenu:dvspawn')
+    else
+        ESX.ShowNotification(Lang:t("error.not_admin"), 'error')
+    end
+end)
+end)
+
+RegisterCommand('maxmods',function()
+    HasPermission(function(isAdmin)
+    if isAdmin then
+        TriggerServerEvent('adminmenu:maxmods')
+    else
+        ESX.ShowNotification(Lang:t("error.not_admin"), 'error')
+    end
+end)
+end)
+
+RegisterCommand('kickall',function ()
+    HasPermission(function(isAdmin)
+    if isAdmin then
+        TriggerServerEvent('adminmenu:kickall')
+    else
+        ESX.ShowNotification(Lang:t("error.not_admin"), 'error')
+    end
+end)
+end)
+
+RegisterCommand('vector2',function()
+    TriggerEvent('qb-admin:client:copyToClipboard', 'coords2')
+end)
+
+RegisterCommand('vector3',function()
+    TriggerEvent('qb-admin:client:copyToClipboard', 'coords3')
+end)
+
+RegisterCommand('vector4',function()
+    TriggerEvent('qb-admin:client:copyToClipboard', 'coords4')
+end)
+
+RegisterCommand('heading',function()
+    TriggerEvent('qb-admin:client:copyToClipboard', 'heading')
+end)
+
+RegisterCommand('announce',function(source,args, rawCommand)
+    HasPermission(function(isAdmin)
+    if isAdmin then
+        TriggerServerEvent('adminmenu:announce', args)
+    else
+        ESX.ShowNotification(Lang:t("error.not_admin"), 'error')
+    end
+end)
+end, false)

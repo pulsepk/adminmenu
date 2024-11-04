@@ -1,13 +1,12 @@
 fx_version 'cerulean'
 game 'gta5'
 
-description 'QB-AdminMenu'
-version '1.2.0'
+description 'QB-AdminMenu Converted to ESX By PulseScripts'
+version '1.2.1'
 
 ui_page 'html/index.html'
 
 shared_scripts {
-    '@es_extended/imports.lua',
     'locale.lua',
     'locales/en.lua',
     'locales/*.lua'

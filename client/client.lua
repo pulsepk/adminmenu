@@ -28,7 +28,13 @@ local menu14 = MenuV:CreateMenu(false, Lang:t("menu.entity_view_options"), menuL
 local menu15 = MenuV:CreateMenu(false, Lang:t("menu.spawn_weapons"), menuLocation, 220, 20, 60, 'size-125', 'none', 'menuv', 'test15')
 
 RegisterNetEvent('qb-admin:client:openMenu', function()
-    MenuV:OpenMenu(menu1)
+    ESX.TriggerServerCallback('adminmenu:GetPlayerPermissions', function(isAdmin)
+        if isAdmin then
+            MenuV:OpenMenu(menu1)
+        else
+            ESX.ShowNotification(Lang:t("error.not_admin"), 'error')
+        end
+    end)
 end)
 
 --[[
@@ -393,10 +399,14 @@ end)
 menu2_admin_noclip:On('change', function(_, _, _)
     ToggleNoClip()
 end)
-
+local data = {}
 -- Revive Self
 menu2_admin_revive:On('select', function(_)
-    TriggerEvent('esx_ambulancejob:revive', PlayerPedId())
+    if GetResourceState('esx_ambulancejob') == 'started' then
+        TriggerEvent('esx_ambulancejob:revive', PlayerPedId())
+    elseif GetResourceState('ars_ambulancejob') == 'started' then
+        TriggerServerEvent('qb-admin:server:selfrevive')
+    end
 end)
 
 -- Invisible
@@ -669,13 +679,13 @@ local function OpenPlayerMenus(player)
             value = "intovehicle",
             description = Lang:t("desc.sit_in_veh_desc") .. " " .. player.cid .. " " .. Lang:t("desc.sit_in_veh_desc2")
         },
-       --[[  [8] = {
+         [8] = {
             icon = '🎒',
             label = Lang:t("menu.open_inv"),
             value = "inventory",
             description = Lang:t("info.open") .. " " .. player.cid .. Lang:t("info.inventories")
-        }, ]]
-        [8] = {
+        }, 
+        [9] = {
             icon = '👕',
             label = Lang:t("menu.give_clothing_menu"),
             value = "cloth",
@@ -1189,12 +1199,7 @@ local function ToggleVehicleDeveloperMode()
     end)
 end
 
-RegisterNetEvent('qb-adminmenu:client:openinv', function(src, playerId)
-   
-    exports.ox_inventory:openInventory('player', playerId)
-    
- 
-end)
+
 
 
 RegisterNetEvent('qb-admin:client:ToggleCoords', function()
