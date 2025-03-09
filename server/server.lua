@@ -277,9 +277,9 @@ RegisterNetEvent('qb-admin:server:cloth', function(player)
     if GetResourceState('illenium-appearance') == 'started' then
         TriggerClientEvent("illenium-appearance:client:openClothingShopMenu", player.id, true)
     elseif GetResourceState('fivem-appearance') == 'started' then
-        exports['fivem-appearance']:startPlayerCustomization(src)
+        exports['fivem-appearance']:startPlayerCustomization(player.id)
     elseif GetResourceState('esx_skin') == 'started' then
-        TriggerClientEvent("esx_skin:openSaveableMenu",src)
+        TriggerClientEvent("esx_skin:openSaveableMenu",player.id)
     end
 end)
 
